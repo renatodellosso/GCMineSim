@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class SimManager : MonoBehaviour
 {
-    public Vector3 tractorSize = new(4, 4, 6);
+    private Vector3 tractorSize;
     public float safetyMargin = 4f;
     public Vector2 fieldDimensions = new(20, 100);
     public float groundScale = 5;
@@ -11,10 +11,13 @@ public class SimManager : MonoBehaviour
     public Camera mainCamera;
 
     public GameObject tractorPrefab;
+    public GameObject chainLinkPrefab;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        tractorSize = tractorPrefab.transform.localScale;
+
         InitSim();
     }
 
@@ -53,6 +56,26 @@ public class SimManager : MonoBehaviour
 
         leftTractor.transform.localScale = tractorSize;
         rightTractor.transform.localScale = tractorSize;
+
+        CreateChain(leftTractor, rightTractor);
+    }
+
+    private void CreateChain(GameObject leftTractor, GameObject rightTractor)
+    {
+        GameObject leftHitch = leftTractor.transform.Find("Hitch").gameObject;
+        GameObject rightHitch = rightTractor.transform.Find("Hitch").gameObject;
+
+        GameObject chain = new("Chain");
+
+        Transform currentLink = leftHitch.transform.Find("Next");
+        while (currentLink.position.x > rightHitch.transform.position.x)
+        {
+            GameObject newLink = Instantiate(chainLinkPrefab, currentLink.position, Quaternion.LookRotation(new Vector3(0, 0, -1)));
+            newLink.transform.SetParent(chain.transform);
+            currentLink = newLink.transform.Find("Next");
+        }
+
+        Debug.Break();
     }
 
     private void PositionCamera()
@@ -61,5 +84,5 @@ public class SimManager : MonoBehaviour
         
         float camHeight = 15f;
         mainCamera.transform.SetPositionAndRotation(new Vector3(-GetTotalWidth() / 2, camHeight, 0), Quaternion.Euler(45, 45, 0));
-  }
+    }
 }

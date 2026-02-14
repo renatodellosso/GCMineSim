@@ -148,13 +148,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5b7afd10742b5462aa1cfe4cff75ab40, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SimManager
-  tractorSize: {x: 4, y: 4, z: 6}
   safetyMargin: 4
   fieldDimensions: {x: 20, y: 100}
   groundScale: 5
   ground: {fileID: 488097706}
   mainCamera: {fileID: 330585545}
+  chain: {fileID: 0}
   tractorPrefab: {fileID: 2020904457245366348, guid: 9f4e05de500ec4e80b0eb00306306734, type: 3}
+  chainLinkPrefab: {fileID: 4523416686837109469, guid: 27b478dcb5e5b4901865370321a11b92, type: 3}
 --- !u!4 &24053859
 Transform:
   m_ObjectHideFlags: 0
