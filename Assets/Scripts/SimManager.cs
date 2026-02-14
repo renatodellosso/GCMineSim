@@ -7,11 +7,17 @@ public class SimManager : MonoBehaviour
     public Vector2 fieldDimensions = new(20, 100);
     public float groundScale = 5;
 
+    public float tractorSpeed = 1f;
+
     public GameObject ground;
     public Camera mainCamera;
 
     public GameObject tractorPrefab;
     public GameObject chainLinkPrefab;
+    public GameObject weightPrefab;
+
+    public bool simulationStarted = false;
+    private GameObject leftTractor, rightTractor;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -19,12 +25,18 @@ public class SimManager : MonoBehaviour
         tractorSize = tractorPrefab.transform.localScale;
 
         InitSim();
+        Debug.Break();
+
+        simulationStarted = true;
     }
 
-    // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
-        
+        if (!simulationStarted)
+            return;
+
+        leftTractor.transform.Translate(Time.fixedDeltaTime * tractorSpeed * Vector3.forward);
+        rightTractor.transform.Translate(Time.fixedDeltaTime * tractorSpeed * Vector3.forward);
     }
 
     private void InitSim()
@@ -51,17 +63,20 @@ public class SimManager : MonoBehaviour
         float leftTractorX = fieldDimensions.x / 2 + safetyMargin + tractorSize.x / 2;
         float rightTractorX = -leftTractorX;
 
-        GameObject leftTractor = Instantiate(tractorPrefab, new Vector3(leftTractorX, tractorSize.y, 0), Quaternion.identity);
-        GameObject rightTractor = Instantiate(tractorPrefab, new Vector3(rightTractorX, tractorSize.y, 0), Quaternion.identity);
+        leftTractor = Instantiate(tractorPrefab, new Vector3(leftTractorX, tractorSize.y, 0), Quaternion.identity);
+        rightTractor = Instantiate(tractorPrefab, new Vector3(rightTractorX, tractorSize.y, 0), Quaternion.identity);
 
         leftTractor.transform.localScale = tractorSize;
         rightTractor.transform.localScale = tractorSize;
 
-        CreateChain(leftTractor, rightTractor);
+        CreateChain();
     }
 
-    private void CreateChain(GameObject leftTractor, GameObject rightTractor)
+    private void CreateChain()
     {
+        float minWeightX = rightTractor.transform.position.x + tractorSize.x / 2 + safetyMargin;
+        float maxWeightX = leftTractor.transform.position.x - tractorSize.x / 2 - safetyMargin;
+
         GameObject leftHitch = leftTractor.transform.Find("Hitch").gameObject;
         GameObject rightHitch = rightTractor.transform.Find("Hitch").gameObject;
 
@@ -72,10 +87,16 @@ public class SimManager : MonoBehaviour
         {
             GameObject newLink = Instantiate(chainLinkPrefab, currentLink.position, Quaternion.LookRotation(new Vector3(0, 0, -1)));
             newLink.transform.SetParent(chain.transform);
+
+            Transform loop = newLink.transform.Find("Loop");
+            if (loop.position.x > minWeightX && loop.position.x < maxWeightX)
+            {
+                GameObject weight = Instantiate(weightPrefab, loop.position, Quaternion.identity);
+                weight.transform.SetParent(chain.transform);
+            }
+
             currentLink = newLink.transform.Find("Next");
         }
-
-        Debug.Break();
     }
 
     private void PositionCamera()
