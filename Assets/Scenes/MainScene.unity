@@ -152,11 +152,14 @@ MonoBehaviour:
   fieldDimensions: {x: 20, y: 100}
   groundScale: 5
   tractorSpeed: 1
+  numMines: 25
+  mineArmedChance: 0.25
   ground: {fileID: 488097706}
   mainCamera: {fileID: 330585545}
   tractorPrefab: {fileID: 2020904457245366348, guid: 9f4e05de500ec4e80b0eb00306306734, type: 3}
   chainLinkPrefab: {fileID: 4523416686837109469, guid: 27b478dcb5e5b4901865370321a11b92, type: 3}
   weightPrefab: {fileID: 3986904931543019434, guid: 927ae30ee7fdb41eebb818cc234ad086, type: 3}
+  minePrefab: {fileID: 4925822250461631612, guid: 1f0df87d297fa4f2ca65c7707081bb80, type: 3}
   simulationStarted: 0
 --- !u!4 &24053859
 Transform:

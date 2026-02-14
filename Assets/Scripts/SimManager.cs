@@ -9,12 +9,16 @@ public class SimManager : MonoBehaviour
 
     public float tractorSpeed = 1f;
 
+    public int numMines = 10;
+    public float mineArmedChance = 0.25f;
+
     public GameObject ground;
     public Camera mainCamera;
 
     public GameObject tractorPrefab;
     public GameObject chainLinkPrefab;
     public GameObject weightPrefab;
+    public GameObject minePrefab;
 
     public bool simulationStarted = false;
     private GameObject leftTractor, rightTractor;
@@ -43,6 +47,7 @@ public class SimManager : MonoBehaviour
     {
         SetUpGround();
         SpawnTractors();
+        SpawnMines();
         PositionCamera();
     }
 
@@ -53,7 +58,7 @@ public class SimManager : MonoBehaviour
 
     private void SetUpGround()
     {
-        float trueLength = fieldDimensions.y + tractorSize.z * 2;
+        float trueLength = fieldDimensions.y / 2 + tractorSize.z * 2;
         ground.transform.localScale = new Vector3(GetTotalWidth() / groundScale, 1, trueLength / groundScale);
         ground.transform.localPosition = new Vector3(0, 0, trueLength - tractorSize.z * 2); // Not sure why 5, but it puts the tractors at the start
     }
@@ -105,5 +110,27 @@ public class SimManager : MonoBehaviour
         
         float camHeight = 15f;
         mainCamera.transform.SetPositionAndRotation(new Vector3(-GetTotalWidth() / 2, camHeight, 0), Quaternion.Euler(45, 45, 0));
+    }
+
+    private void SpawnMines()
+    {
+        float minMineX = rightTractor.transform.position.x + tractorSize.x / 2 + safetyMargin;
+        float maxMineX = leftTractor.transform.position.x - tractorSize.x / 2 - safetyMargin;
+
+        for (int i = 0; i < numMines; i++)
+        {
+            float x = Random.Range(minMineX, maxMineX);
+            float y = minePrefab.transform.localScale.y + 0.1f;
+            float z = Random.Range(0, fieldDimensions.y);
+
+            bool armed = Random.value < mineArmedChance;
+            SpawnMine(new Vector3(x, y, z), armed);
+        }
+    }
+
+    private void SpawnMine(Vector3 position, bool armed)
+    {
+        GameObject mine = Instantiate(minePrefab, position, Quaternion.identity);
+        mine.GetComponent<Mine>().armed = armed;
     }
 }
