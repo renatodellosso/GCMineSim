@@ -87,11 +87,16 @@ public class SimManager : MonoBehaviour
 
         GameObject chain = new("Chain");
 
+        GameObject firstLink = null;
+
         Transform currentLink = leftHitch.transform.Find("Next");
         while (currentLink.position.x > rightHitch.transform.position.x)
         {
             GameObject newLink = Instantiate(chainLinkPrefab, currentLink.position, Quaternion.LookRotation(new Vector3(0, 0, -1)));
             newLink.transform.SetParent(chain.transform);
+
+            if (firstLink == null)
+                firstLink = newLink;
 
             Transform loop = newLink.transform.Find("Loop");
             if (loop.position.x > minWeightX && loop.position.x < maxWeightX)
@@ -102,6 +107,9 @@ public class SimManager : MonoBehaviour
 
             currentLink = newLink.transform.Find("Next");
         }
+
+        leftTractor.GetComponent<HingeJoint>().connectedBody = firstLink.transform.Find("Link 1").GetComponent<Rigidbody>();
+        rightTractor.GetComponent<HingeJoint>().connectedBody = currentLink.parent.Find("Link 2").GetComponent<Rigidbody>();
     }
 
     private void PositionCamera()

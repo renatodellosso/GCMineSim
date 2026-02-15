@@ -156,5 +156,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Mine
   armed: 0
   hit: 0
-  MinDetonationImpulse: 0.4
+  MinDetonationImpulse: 2
   hitMaterial: {fileID: 2100000, guid: c0bec7fda24b446d19eeee6a9bf0649b, type: 2}
