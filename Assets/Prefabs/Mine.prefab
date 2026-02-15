@@ -158,5 +158,5 @@ MonoBehaviour:
   hit: 0
   MinDetonationImpulse: 2
   explosionForce: 100
-  explosionRadius: 5
+  explosionRadius: 1
   hitMaterial: {fileID: 2100000, guid: c0bec7fda24b446d19eeee6a9bf0649b, type: 2}

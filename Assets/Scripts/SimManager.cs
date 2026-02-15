@@ -12,7 +12,10 @@ public class SimManager : MonoBehaviour
     public int numMines = 10;
     public float mineArmedChance = 0.25f;
 
+    public float cameraSpeed = 5f, zoomSpeed = 100f;
+
     public GameObject ground;
+    public Transform cameraParent;
     public Camera mainCamera;
 
     public GameObject tractorPrefab;
@@ -38,8 +41,27 @@ public class SimManager : MonoBehaviour
         if (!simulationStarted)
             return;
 
+        MoveTractors();
+        HandleInput();
+    }
+
+    private void MoveTractors()
+    {
         leftTractor.transform.Translate(Time.fixedDeltaTime * tractorSpeed * Vector3.forward);
-        rightTractor.transform.Translate(Time.fixedDeltaTime * tractorSpeed * Vector3.forward);
+        rightTractor.transform.Translate(Time.fixedDeltaTime * tractorSpeed * Vector3.forward);        
+    }
+
+    private void HandleInput()
+    {
+        float horizontalMovement = Input.GetKey(KeyCode.W) ? 1 : Input.GetKey(KeyCode.S) ? -1 : 0;
+        float verticalMovement = Input.GetKey(KeyCode.E) ? 1 : Input.GetKey(KeyCode.Q) ? -1 : 0;
+        float rotation = Input.GetKey(KeyCode.A) ? -1 : Input.GetKey(KeyCode.D) ? 1 : 0;
+        float zoom = Input.mouseScrollDelta.y;
+
+        cameraParent.transform.Translate(Time.fixedDeltaTime * horizontalMovement * cameraSpeed * Vector3.forward);
+        cameraParent.transform.Translate(Time.fixedDeltaTime * verticalMovement * cameraSpeed * Vector3.up);
+        cameraParent.transform.Rotate(Time.fixedDeltaTime * rotation * cameraSpeed * Vector3.up);
+        mainCamera.orthographicSize += zoom * zoomSpeed * Time.fixedDeltaTime; // Zoom in/out with mouse scroll
     }
 
     private void InitSim()
@@ -116,7 +138,8 @@ public class SimManager : MonoBehaviour
         // Put camera above a corner of the field
         
         float camHeight = 15f;
-        mainCamera.transform.SetPositionAndRotation(new Vector3(-GetTotalWidth() / 2, camHeight, 0), Quaternion.Euler(45, 45, 0));
+        cameraParent.position = new Vector3(-GetTotalWidth() / 2, 0, -fieldDimensions.y / 2);
+        mainCamera.transform.SetPositionAndRotation(new Vector3(0, camHeight, 0), Quaternion.Euler(45, 45, 0));
     }
 
     private void SpawnMines()
