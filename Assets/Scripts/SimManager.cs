@@ -1,3 +1,6 @@
+using System.Collections.Generic;
+using System.Linq;
+using TMPro;
 using UnityEngine;
 
 public class SimManager : MonoBehaviour
@@ -17,6 +20,7 @@ public class SimManager : MonoBehaviour
     public GameObject ground;
     public Transform cameraParent;
     public Camera mainCamera;
+    public TMP_Text infoText;
 
     public GameObject tractorPrefab;
     public GameObject chainLinkPrefab;
@@ -25,6 +29,8 @@ public class SimManager : MonoBehaviour
 
     public bool simulationStarted = false;
     private GameObject leftTractor, rightTractor;
+
+    private List<Mine> mines = new();
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -43,6 +49,7 @@ public class SimManager : MonoBehaviour
 
         MoveTractors();
         HandleInput();
+        UpdateUi();
     }
 
     private void MoveTractors()
@@ -62,6 +69,14 @@ public class SimManager : MonoBehaviour
         cameraParent.transform.Translate(Time.fixedDeltaTime * verticalMovement * cameraSpeed * Vector3.up);
         cameraParent.transform.Rotate(Time.fixedDeltaTime * rotation * cameraSpeed * Vector3.up);
         mainCamera.orthographicSize += zoom * zoomSpeed * Time.fixedDeltaTime; // Zoom in/out with mouse scroll
+    }
+
+    private void UpdateUi()
+    {
+        int armedMines = mines.Where(m => m.armed).Count();
+        int hitMines = mines.Where(m => m.hit).Count();
+
+        infoText.text = $"Mines: {hitMines} hit / {armedMines} armed / {numMines} total";
     }
 
     private void InitSim()
@@ -164,6 +179,9 @@ public class SimManager : MonoBehaviour
     {
         GameObject mine = Instantiate(minePrefab, position, Quaternion.identity);
         mine.transform.SetParent(parent.transform);
-        mine.GetComponent<Mine>().armed = armed;
+
+        Mine mineScript = mine.GetComponent<Mine>();
+        mineScript.armed = armed;
+        mines.Add(mineScript);
     }
 }
