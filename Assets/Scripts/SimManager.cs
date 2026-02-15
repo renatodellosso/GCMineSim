@@ -29,7 +29,6 @@ public class SimManager : MonoBehaviour
         tractorSize = tractorPrefab.transform.localScale;
 
         InitSim();
-        Debug.Break();
 
         simulationStarted = true;
     }
@@ -125,6 +124,8 @@ public class SimManager : MonoBehaviour
         float minMineX = rightTractor.transform.position.x + tractorSize.x / 2 + safetyMargin;
         float maxMineX = leftTractor.transform.position.x - tractorSize.x / 2 - safetyMargin;
 
+        GameObject mineParent = new("Mines");
+
         for (int i = 0; i < numMines; i++)
         {
             float x = Random.Range(minMineX, maxMineX);
@@ -132,13 +133,14 @@ public class SimManager : MonoBehaviour
             float z = Random.Range(0, fieldDimensions.y);
 
             bool armed = Random.value < mineArmedChance;
-            SpawnMine(new Vector3(x, y, z), armed);
+            SpawnMine(new Vector3(x, y, z), armed, mineParent);
         }
     }
 
-    private void SpawnMine(Vector3 position, bool armed)
+    private void SpawnMine(Vector3 position, bool armed, GameObject parent)
     {
         GameObject mine = Instantiate(minePrefab, position, Quaternion.identity);
+        mine.transform.SetParent(parent.transform);
         mine.GetComponent<Mine>().armed = armed;
     }
 }

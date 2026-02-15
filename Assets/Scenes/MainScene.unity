@@ -153,7 +153,7 @@ MonoBehaviour:
   groundScale: 5
   tractorSpeed: 1
   numMines: 25
-  mineArmedChance: 0.25
+  mineArmedChance: 1
   ground: {fileID: 488097706}
   mainCamera: {fileID: 330585545}
   tractorPrefab: {fileID: 2020904457245366348, guid: 9f4e05de500ec4e80b0eb00306306734, type: 3}
