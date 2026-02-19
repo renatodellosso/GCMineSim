@@ -15,6 +15,9 @@ public class SimManager : MonoBehaviour
     public int numMines = 10;
     public float mineArmedChance = 0.25f;
 
+    // Place a weight every X links in the chain
+    public int weightInterval = 2;
+
     public float cameraSpeed = 5f, zoomSpeed = 100f, cameraHeight = 20f, cameraAngle = 75f;
 
     public GameObject ground;
@@ -87,6 +90,8 @@ public class SimManager : MonoBehaviour
         cameraParent.transform.Translate(Time.fixedDeltaTime * verticalMovement * cameraSpeed * Vector3.up);
         cameraParent.transform.Rotate(Time.fixedDeltaTime * rotation * cameraSpeed * Vector3.up);
         mainCamera.orthographicSize += zoom * zoomSpeed * Time.fixedDeltaTime; // Zoom in/out with mouse scroll
+
+        mainCamera.orthographicSize = Mathf.Max(0, mainCamera.orthographicSize);
     }
 
     private void UpdateUi()
@@ -146,6 +151,7 @@ public class SimManager : MonoBehaviour
         GameObject firstLink = null;
 
         Transform currentLink = leftHitch.transform.Find("Next");
+        int linkIndex = 0;
         while (currentLink.position.x > rightHitch.transform.position.x)
         {
             GameObject newLink = Instantiate(chainLinkPrefab, currentLink.position, Quaternion.LookRotation(new Vector3(0, 0, -1)));
@@ -159,13 +165,14 @@ public class SimManager : MonoBehaviour
                 firstLink = newLink;
 
             Transform loop = newLink.transform.Find("Loop");
-            if (loop.position.x > minWeightX && loop.position.x < maxWeightX)
+            if (loop.position.x > minWeightX && loop.position.x < maxWeightX && linkIndex % weightInterval == 0)
             {
                 GameObject weight = Instantiate(weightPrefab, loop.position, Quaternion.identity);
                 weight.transform.SetParent(chainParent.transform);
             }
 
             currentLink = newLink.transform.Find("Next");
+            linkIndex++;
         }
 
         leftTractor.GetComponent<HingeJoint>().connectedBody = firstLink.transform.Find("Link 1").GetComponent<Rigidbody>();

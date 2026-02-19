@@ -154,8 +154,11 @@ MonoBehaviour:
   tractorSpeed: 1
   numMines: 25
   mineArmedChance: 0.25
+  weightInterval: 2
   cameraSpeed: 10
   zoomSpeed: 50
+  cameraHeight: 20
+  cameraAngle: 55
   ground: {fileID: 488097706}
   cameraParent: {fileID: 1479685764}
   mainCamera: {fileID: 330585545}
@@ -165,6 +168,8 @@ MonoBehaviour:
   weightPrefab: {fileID: 3986904931543019434, guid: 927ae30ee7fdb41eebb818cc234ad086, type: 3}
   minePrefab: {fileID: 4925822250461631612, guid: 1f0df87d297fa4f2ca65c7707081bb80, type: 3}
   simulationStarted: 0
+  tractorDirection: 1
+  passNum: 1
 --- !u!4 &24053859
 Transform:
   m_ObjectHideFlags: 0
@@ -285,7 +290,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a79441f348de89743a2939f4d699eac1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_RenderShadows: 1
+  m_RenderShadows: 0
   m_RequiresDepthTextureOption: 2
   m_RequiresOpaqueTextureOption: 2
   m_CameraType: 0
@@ -296,7 +301,7 @@ MonoBehaviour:
     m_Bits: 1
   m_VolumeTrigger: {fileID: 0}
   m_VolumeFrameworkUpdateModeOption: 2
-  m_RenderPostProcessing: 1
+  m_RenderPostProcessing: 0
   m_Antialiasing: 0
   m_AntialiasingQuality: 2
   m_StopNaN: 0
@@ -352,7 +357,7 @@ Light:
   m_InnerSpotAngle: 21.80208
   m_CookieSize2D: {x: 10, y: 10}
   m_Shadows:
-    m_Type: 2
+    m_Type: 0
     m_Resolution: -1
     m_CustomResolution: -1
     m_Strength: 1
