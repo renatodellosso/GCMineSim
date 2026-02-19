@@ -28,9 +28,13 @@ public class SimManager : MonoBehaviour
     public GameObject minePrefab;
 
     public bool simulationStarted = false;
-    private GameObject leftTractor, rightTractor;
+    public float tractorDirection = 1f;
+    public int passNum = 1;
+    private GameObject leftTractor, rightTractor, chainParent;
 
     private readonly List<Mine> mines = new();
+
+    private float lastPhysicsTime, lastPhysicsDeltaTime;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -42,20 +46,34 @@ public class SimManager : MonoBehaviour
         simulationStarted = true;
     }
 
-    void FixedUpdate()
+  void Update()
+  {
+    UpdateUi();
+  }
+
+  void FixedUpdate()
     {
+        lastPhysicsDeltaTime = Time.time - lastPhysicsTime;
+        lastPhysicsTime = Time.time;
+        
         if (!simulationStarted)
             return;
 
         MoveTractors();
         HandleInput();
-        UpdateUi();
     }
 
     private void MoveTractors()
     {
-        leftTractor.transform.Translate(Time.fixedDeltaTime * tractorSpeed * Vector3.forward);
-        rightTractor.transform.Translate(Time.fixedDeltaTime * tractorSpeed * Vector3.forward);        
+        Vector3 velocity = Time.fixedDeltaTime * tractorSpeed * tractorDirection * Vector3.forward;
+        leftTractor.transform.Translate(velocity);
+        rightTractor.transform.Translate(velocity);
+
+        // Check if we need to turn around
+        if (leftTractor.transform.position.z > fieldDimensions.y + tractorSize.y || leftTractor.transform.position.z < -tractorSize.y / 2) {
+            tractorDirection *= -1;
+            passNum++;
+        }
     }
 
     private void HandleInput()
@@ -76,7 +94,9 @@ public class SimManager : MonoBehaviour
         int armedMines = mines.Count(m => m.armed);
         int hitMines = mines.Count(m => m.hit);
 
-        infoText.text = $"Mines: {hitMines} hit / {armedMines} armed / {numMines} total";
+        infoText.text = $"Mines: {hitMines} hit / {armedMines} armed / {numMines} total\n" +
+                        $"Pass: {passNum}\n" +
+                        $"FPS: {(int)(1f / Time.unscaledDeltaTime)} / Physics FPS: {(int)(1f / lastPhysicsDeltaTime)}";
     }
 
     private void InitSim()
@@ -94,7 +114,7 @@ public class SimManager : MonoBehaviour
 
     private void SetUpGround()
     {
-        float trueLength = fieldDimensions.y / 2 + tractorSize.z * 2;
+        float trueLength = fieldDimensions.y / 2 + tractorSize.z * 3;
         ground.transform.localScale = new Vector3(GetTotalWidth() / groundScale, 1, trueLength / groundScale);
         ground.transform.localPosition = new Vector3(0, 0, trueLength - tractorSize.z * 2); // Not sure why 5, but it puts the tractors at the start
     }
@@ -121,7 +141,7 @@ public class SimManager : MonoBehaviour
         GameObject leftHitch = leftTractor.transform.Find("Hitch").gameObject;
         GameObject rightHitch = rightTractor.transform.Find("Hitch").gameObject;
 
-        GameObject chain = new("Chain");
+        chainParent = new GameObject("Chain");
 
         GameObject firstLink = null;
 
@@ -129,7 +149,7 @@ public class SimManager : MonoBehaviour
         while (currentLink.position.x > rightHitch.transform.position.x)
         {
             GameObject newLink = Instantiate(chainLinkPrefab, currentLink.position, Quaternion.LookRotation(new Vector3(0, 0, -1)));
-            newLink.transform.SetParent(chain.transform);
+            newLink.transform.SetParent(chainParent.transform);
 
             // Transform prevLink2 = currentLink.parent.Find("Link 2");
             // if (prevLink2 != null)
@@ -142,7 +162,7 @@ public class SimManager : MonoBehaviour
             if (loop.position.x > minWeightX && loop.position.x < maxWeightX)
             {
                 GameObject weight = Instantiate(weightPrefab, loop.position, Quaternion.identity);
-                weight.transform.SetParent(chain.transform);
+                weight.transform.SetParent(chainParent.transform);
             }
 
             currentLink = newLink.transform.Find("Next");
