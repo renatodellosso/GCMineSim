@@ -15,7 +15,7 @@ public class SimManager : MonoBehaviour
     public int numMines = 10;
     public float mineArmedChance = 0.25f;
 
-    public float cameraSpeed = 5f, zoomSpeed = 100f;
+    public float cameraSpeed = 5f, zoomSpeed = 100f, cameraHeight = 20f, cameraAngle = 75f;
 
     public GameObject ground;
     public Transform cameraParent;
@@ -30,7 +30,7 @@ public class SimManager : MonoBehaviour
     public bool simulationStarted = false;
     private GameObject leftTractor, rightTractor;
 
-    private List<Mine> mines = new();
+    private readonly List<Mine> mines = new();
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -73,8 +73,8 @@ public class SimManager : MonoBehaviour
 
     private void UpdateUi()
     {
-        int armedMines = mines.Where(m => m.armed).Count();
-        int hitMines = mines.Where(m => m.hit).Count();
+        int armedMines = mines.Count(m => m.armed);
+        int hitMines = mines.Count(m => m.hit);
 
         infoText.text = $"Mines: {hitMines} hit / {armedMines} armed / {numMines} total";
     }
@@ -131,6 +131,10 @@ public class SimManager : MonoBehaviour
             GameObject newLink = Instantiate(chainLinkPrefab, currentLink.position, Quaternion.LookRotation(new Vector3(0, 0, -1)));
             newLink.transform.SetParent(chain.transform);
 
+            // Transform prevLink2 = currentLink.parent.Find("Link 2");
+            // if (prevLink2 != null)
+            //     prevLink2.GetComponent<HingeJoint>().connectedBody = newLink.transform.Find("Link 1").GetComponent<Rigidbody>();
+
             if (firstLink == null)
                 firstLink = newLink;
 
@@ -151,10 +155,9 @@ public class SimManager : MonoBehaviour
     private void PositionCamera()
     {
         // Put camera above a corner of the field
-        
-        float camHeight = 15f;
+
         cameraParent.position = new Vector3(-GetTotalWidth() / 2, 0, -fieldDimensions.y / 2);
-        mainCamera.transform.SetPositionAndRotation(new Vector3(0, camHeight, 0), Quaternion.Euler(45, 45, 0));
+        mainCamera.transform.SetPositionAndRotation(new Vector3(0, cameraHeight, 0), Quaternion.Euler(cameraAngle, cameraAngle, 0));
     }
 
     private void SpawnMines()
